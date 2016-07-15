@@ -1,0 +1,27 @@
+---
+- hosts: vagrant_vm
+
+  vars:
+    - appLocation: ../app
+    - hostDest: /home/vagrant
+    - appLocationOnDest: /home/vagrant/app
+    - targetUrl: "http://checkip.dyndns.org"
+    - outputFilename: "output.txt"
+
+  roles:
+     - { role: nodesource.node , role_nodejs_version: 4.4.4, become: yes, become_user: root }
+
+  tasks:    
+    - name: copy app
+      copy:
+        src: "{{ appLocation }}"
+        dest: "{{ hostDest }}"
+
+    - name: install app dependencies
+      npm: path="{{ appLocationOnDest }}"
+
+    - name: run app
+      shell: node "{{ appLocationOnDest }}" app.js
+      environment: 
+        TARGET_URL: "{{targetUrl}}"
+        OUTPUT_FILENAME: "{{outputFilename}}"
